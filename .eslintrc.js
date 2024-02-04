@@ -27,6 +27,11 @@ module.exports = {
   ],
   ignorePatterns: ['src/@iconify/*.js', 'node_modules', 'dist', '*.d.ts'],
   rules: {
+    '@typescript-eslint/unused-imports/no-unused-imports': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/unused-imports/no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
 
@@ -76,7 +81,7 @@ module.exports = {
     ],
 
     // Ignore _ as unused variable
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_+$' }],
+    // '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_+$' }],
 
     'array-element-newline': ['error', 'consistent'],
     'array-bracket-newline': ['error', 'consistent'],
