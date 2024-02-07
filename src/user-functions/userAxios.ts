@@ -1,9 +1,8 @@
+import auth from '@/configs/auth'
+import { UserAxiosHeader } from '@/configs/userAxiosHeader'
 import axios from '@axios'
 // eslint-disable-next-line import/order
 import type { AxiosResponse } from 'axios'
-import auth from 'src/configs/auth'
-// eslint-disable-next-line import/no-named-as-default
-import UserAxiosHeader from 'src/configs/userAxiosHeader'
 
 async function put({
   method,

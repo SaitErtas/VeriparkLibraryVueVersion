@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
-import type { UserProperties } from '@/@fake-db/types'
-import { paginationMeta } from '@/@fake-db/utils'
-import { useUserListStore } from '@/views/apps/user/useUserListStore'
+import type { BookListItemType } from '@/types/book/bookTypes'
+import userAxios from '@/user-functions/userAxios'
 import type { Options } from '@core/types'
-import { avatarText } from '@core/utils/formatters'
 
 // 👉 Store
-const userListStore = useUserListStore()
-const searchQuery = ref('')
-const selectedRole = ref()
-const selectedPlan = ref()
-const selectedStatus = ref()
-const totalPage = ref(1)
 const totalUsers = ref(0)
-const users = ref<UserProperties[]>([])
+const bookList = ref<BookListItemType[]>([])
 
 const options = ref<Options>({
   page: 1,
@@ -26,102 +18,57 @@ const options = ref<Options>({
 
 // Headers
 const headers = [
-  { title: 'User', key: 'user' },
-  { title: 'Email', key: 'email' },
-  { title: 'Role', key: 'role' },
-  { title: 'Plan', key: 'plan' },
-  { title: 'Status', key: 'status' },
+  { title: 'Name', key: 'name' },
+  { title: 'ISBN', key: 'isbn' },
+  { title: 'StockAmount', key: 'stockAmount' },
+  { title: 'CheckOutAmount', key: 'checkOutAmount' },
   { title: 'Actions', key: 'actions', sortable: false },
 ]
 
 // 👉 Fetching users
-const fetchUsers = () => {
-  userListStore.fetchUsers({
-    q: searchQuery.value,
-    status: selectedStatus.value,
-    plan: selectedPlan.value,
-    role: selectedRole.value,
-    options: options.value,
-  }).then((response: { data: { users: any[]; totalPage: number; totalUsers: number; page: number } }) => {
-    users.value = response.data.users
-    totalPage.value = response.data.totalPage
-    totalUsers.value = response.data.totalUsers
-    options.value.page = response.data.page
-  }).catch((error: any) => {
-    console.error(error)
+const getBookList = async () => {
+  const resultAxios = await userAxios.get({
+    method: 'Books/list/',
   })
+
+  const responseData = await resultAxios?.data.result
+
+  bookList.value = responseData.books
 }
 
-watchEffect(fetchUsers)
+onMounted(() => {
+  getBookList()
+})
+
+// watchEffect(getBookList)
 
 // 👉 search filters
-const _roles = [
-  { title: 'Admin', value: 'admin' },
-  { title: 'Author', value: 'author' },
-  { title: 'Editor', value: 'editor' },
-  { title: 'Maintainer', value: 'maintainer' },
-  { title: 'Subscriber', value: 'subscriber' },
-]
-
-const _plans = [
-  { title: 'Basic', value: 'basic' },
-  { title: 'Company', value: 'company' },
-  { title: 'Enterprise', value: 'enterprise' },
-  { title: 'Team', value: 'team' },
-]
-
-const _status = [
-  { title: 'Pending', value: 'pending' },
-  { title: 'Active', value: 'active' },
-  { title: 'Inactive', value: 'inactive' },
-]
-
-const resolveUserRoleVariant = (role: string) => {
-  const roleLowerCase = role.toLowerCase()
-
-  if (roleLowerCase === 'subscriber')
-    return { color: 'primary', icon: 'mdi-account-outline' }
-  if (roleLowerCase === 'author')
-    return { color: 'warning', icon: 'mdi-cog-outline' }
-  if (roleLowerCase === 'maintainer')
-    return { color: 'success', icon: 'mdi-chart-donut' }
-  if (roleLowerCase === 'editor')
-    return { color: 'info', icon: 'mdi-pencil-outline' }
-  if (roleLowerCase === 'admin')
-    return { color: 'error', icon: 'mdi-laptop' }
-
-  return { color: 'primary', icon: 'mdi-account-outline' }
-}
-
-const resolveUserStatusVariant = (stat: string) => {
-  const statLowerCase = stat.toLowerCase()
-  if (statLowerCase === 'pending')
-    return 'warning'
-  if (statLowerCase === 'active')
-    return 'success'
-  if (statLowerCase === 'inactive')
-    return 'secondary'
-
-  return 'primary'
-}
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 const isAddNewUserDrawerVisible = ref(false)
 
-// 👉 Add new user
-const _addNewUser = (userData: UserProperties) => {
-  userListStore.addUser(userData)
-
+// 👉 Update Book
+const updateBook = (id: number) => {
   // refetch User
-  fetchUsers()
+  getBookList()
 }
 
-// 👉 Delete user
-const deleteUser = (id: number) => {
-  userListStore.deleteUser(id)
-
+// 👉 checkOutBook
+const checkOutBook = (id: number) => {
   // refetch User
-  fetchUsers()
+  getBookList()
+}
+
+// 👉 checkInBook
+const checkInBook = (id: number) => {
+  // refetch User
+  getBookList()
+}
+
+// 👉 addBook
+const addBook = (id: number) => {
+  // refetch User
+  getBookList()
 }
 </script>
 
@@ -135,77 +82,34 @@ const deleteUser = (id: number) => {
     <VDataTableServer
       v-model:items-per-page="options.itemsPerPage"
       v-model:page="options.page"
-      :items="users"
-      :items-length="totalUsers"
+      :items="bookList"
+      :items-length="bookList.length"
       :headers="headers"
-      show-select
       class="text-no-wrap rounded-0"
       @update:options="options = $event"
     >
-      <!-- User -->
-      <template #item.user="{ item }">
+      <!-- Name -->
+      <template #item.name="{ item }">
         <div class="d-flex">
-          <VAvatar
-            size="34"
-            :variant="!item.raw.avatar ? 'tonal' : undefined"
-            :color="!item.raw.avatar ? resolveUserRoleVariant(item.raw.role).color : undefined"
-            class="me-3"
-          >
-            <VImg
-              v-if="item.raw.avatar"
-              :src="item.raw.avatar"
-            />
-            <span
-              v-else
-              class="text-sm"
-            >{{ avatarText(item.raw.fullName) }}</span>
-          </VAvatar>
-
           <div class="d-flex flex-column">
-            <h6 class="text-sm">
-              <RouterLink
-                :to="{ name: 'apps-user-view-id', params: { id: item.raw.id } }"
-                class="font-weight-medium user-list-name"
-              >
-                {{ item.raw.fullName }}
-              </RouterLink>
-            </h6>
-
-            <span class="text-xs text-medium-emphasis">@{{ item.raw.username }}</span>
+            <span class="text-xs text-medium-emphasis">{{ item.raw.name }}</span>
           </div>
         </div>
       </template>
 
-      <!-- Email -->
-      <template #item.email="{ item }">
-        <span class="text-sm">{{ item.raw.email }}</span>
+      <!-- ISBN -->
+      <template #item.isbn="{ item }">
+        <span class="text-sm">{{ item.raw.isbn }}</span>
       </template>
 
-      <!-- Role -->
-      <template #item.role="{ item }">
-        <div class="d-flex gap-x-2">
-          <VIcon
-            :icon="resolveUserRoleVariant(item.raw.role).icon"
-            :color="resolveUserRoleVariant(item.raw.role).color"
-          />
-          <span class="text-capitalize">{{ item.raw.role }}</span>
-        </div>
+      <!-- stockAmount -->
+      <template #item.stockAmount="{ item }">
+        <span class="text-sm">{{ item.raw.stockAmount }}</span>
       </template>
 
-      <!-- Plan -->
-      <template #item.plan="{ item }">
-        <span class="text-capitalize text-high-emphasis">{{ item.raw.currentPlan }}</span>
-      </template>
-
-      <!-- Status -->
-      <template #item.status="{ item }">
-        <VChip
-          :color="resolveUserStatusVariant(item.raw.status)"
-          size="small"
-          class="text-capitalize"
-        >
-          {{ item.raw.status }}
-        </VChip>
+      <!-- checkOutAmount -->
+      <template #item.checkOutAmount="{ item }">
+        <span class="text-sm">{{ item.raw.checkOutAmount }}</span>
       </template>
 
       <!-- Actions -->
@@ -223,24 +127,26 @@ const deleteUser = (id: number) => {
 
           <VMenu activator="parent">
             <VList>
-              <VListItem :to="{ name: 'apps-user-view-id', params: { id: item.raw.id } }">
-                <template #prepend>
-                  <VIcon icon="mdi-eye-outline" />
-                </template>
-                <VListItemTitle>View</VListItemTitle>
-              </VListItem>
-              <VListItem link>
-                <template #prepend>
-                  <VIcon icon="mdi-pencil-outline" />
-                </template>
-                <VListItemTitle>Edit</VListItemTitle>
-              </VListItem>
-              <VListItem @click="deleteUser(item.raw.id)">
-                <template #prepend>
-                  <VIcon icon="mdi-delete-outline" />
-                </template>
-                <VListItemTitle>Delete</VListItemTitle>
-              </VListItem>
+              <VListItem>
+                <VListItem @click="updateBook(item.raw.id)">
+                  <template #prepend>
+                    <VIcon icon="mdi-edit-outline" />
+                  </template>
+                  <VListItemTitle>Update Book</VListItemTitle>
+                </VListItem>
+                <VListItem @click="checkOutBook(item.raw.id)">
+                  <template #prepend>
+                    <VIcon icon="mdi-book-arrow-up-outline" />
+                  </template>
+                  <VListItemTitle>CheckOut Book</VListItemTitle>
+                </VListItem>
+                <VListItem @click="checkInBook(item.raw.id)">
+                  <template #prepend>
+                    <VIcon icon="mdi-book-arrow-down-outline" />
+                  </template>
+                  <VListItemTitle>CheckIn Book</VListItemTitle>
+                </VListItem>
+              </vlistitem>
             </VList>
           </VMenu>
         </VBtn>
@@ -260,9 +166,7 @@ const deleteUser = (id: number) => {
               :items="[10, 20, 25, 50, 100]"
             />
           </div>
-          <div class="d-flex text-sm align-center text-high-emphasis">
-            {{ paginationMeta(options, totalUsers) }}
-          </div>
+
           <div class="d-flex gap-x-2 align-center">
             <VBtn
               class="flip-in-rtl"
