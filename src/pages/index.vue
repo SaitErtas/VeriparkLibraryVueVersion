@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import type { BookListItemType } from '@/types/book/bookTypes'
+import CheckOutBook from '@/user-components/book/check-out-book/CheckOutBook.vue'
 import userAxios from '@/user-functions/userAxios'
 import type { Options } from '@core/types'
 
 // 👉 Store
 const totalUsers = ref(0)
+const openCheckOutBookDialog = ref(false)
 const bookList = ref<BookListItemType[]>([])
+const bookListItem = ref<BookListItemType>()
 
 const options = ref<Options>({
   page: 1,
@@ -42,11 +45,6 @@ onMounted(() => {
 
 // watchEffect(getBookList)
 
-// 👉 search filters
-
-// eslint-disable-next-line unused-imports/no-unused-vars
-const isAddNewUserDrawerVisible = ref(false)
-
 // 👉 Update Book
 const updateBook = (id: number) => {
   // refetch User
@@ -54,9 +52,18 @@ const updateBook = (id: number) => {
 }
 
 // 👉 checkOutBook
-const checkOutBook = (id: number) => {
-  // refetch User
-  getBookList()
+const checkOutBook = (item: BookListItemType) => {
+  console.log(item)
+  bookListItem.value = item
+  openCheckOutBookDialog.value = true
+
+  // refetch getBookList
+  // getBookList()
+}
+
+const closeCheckOutBookDialog = () => {
+  console.log('test')
+  openCheckOutBookDialog.value = false
 }
 
 // 👉 checkInBook
@@ -134,7 +141,7 @@ const addBook = (id: number) => {
                   </template>
                   <VListItemTitle>Update Book</VListItemTitle>
                 </VListItem>
-                <VListItem @click="checkOutBook(item.raw.id)">
+                <VListItem @click="checkOutBook(item.raw)">
                   <template #prepend>
                     <VIcon icon="mdi-book-arrow-up-outline" />
                   </template>
@@ -193,6 +200,13 @@ const addBook = (id: number) => {
     </VDataTableServer>
     <!-- SECTION -->
   </div>
+
+  <CheckOutBook
+    v-if="bookListItem"
+    :is-dialog-visible="openCheckOutBookDialog"
+    :add-check-out-type-item="{ bookId: bookListItem?.id, bookName: bookListItem?.name, phoneNumber: '', tckn: 0, userName: '' }"
+    @update:is-dialog-visible="closeCheckOutBookDialog"
+  />
 </template>
 
 <route lang="yaml">

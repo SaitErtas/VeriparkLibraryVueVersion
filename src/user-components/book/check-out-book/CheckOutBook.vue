@@ -1,42 +1,41 @@
 <script setup lang="ts">
-import type { AddBookType } from '@/types/book/bookTypes'
+import type { CheckOutType } from '@/types/check-in-out/checkInOutTypes'
 
 interface Props {
-  addBookTypeItem?: AddBookType
+  addCheckOutTypeItem?: CheckOutType
   isDialogVisible: boolean
 }
 
 interface Emit {
-  (e: 'submit', value: AddBookType): void
+  (e: 'submit', value: CheckOutType): void
   (e: 'update:isDialogVisible', val: boolean): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  addBookTypeItem: () => ({
-    isbn: '',
-    name: '',
-    price: 0,
-    publishDate: new Date(),
-    stockAmount: 0,
+  addCheckOutTypeItem: () => ({
+    bookId: 0,
+    bookName: '',
+    phoneNumber: '',
+    tckn: 0,
+    userName: '',
   }),
 })
 
 const emit = defineEmits<Emit>()
 
-const userData = ref<AddBookType>(structuredClone(toRaw(props.addBookTypeItem)))
+const bookData = ref<CheckOutType>(structuredClone(toRaw(props.addCheckOutTypeItem)))
 
 watch(props, () => {
-  userData.value = structuredClone(toRaw(props.addBookTypeItem))
+  bookData.value = structuredClone(toRaw(props.addCheckOutTypeItem))
 })
 
 const onFormSubmit = () => {
   emit('update:isDialogVisible', false)
-  emit('submit', userData.value)
+  emit('submit', bookData.value)
 }
 
 const onFormReset = () => {
-  userData.value = structuredClone(toRaw(props.addBookTypeItem))
-
+  bookData.value = structuredClone(toRaw(props.addCheckOutTypeItem))
   emit('update:isDialogVisible', false)
 }
 
@@ -61,10 +60,10 @@ const dialogVisibleUpdate = (val: boolean) => {
 
       <VCardItem class="text-center">
         <VCardTitle class="text-h5 mb-2">
-          Edit User Information
+          CheckOut Book
         </VCardTitle>
         <VCardSubtitle>
-          Updating user details will receive a privacy audit.
+          {{ bookData.bookName }}
         </VCardSubtitle>
       </VCardItem>
 
@@ -81,33 +80,35 @@ const dialogVisibleUpdate = (val: boolean) => {
               md="6"
             >
               <VTextField
-                v-model="userData.name"
-                label="Name"
-                placeholder="Name"
+                v-model="bookData.bookId"
+                label="bookId"
+                placeholder="bookId"
+                readonly
               />
             </VCol>
 
-            <!-- 👉 Username -->
+            <!-- 👉 userName -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="userData.isbn"
-                label="ISBN"
-                placeholder="ISBN"
+                v-model="bookData.bookName"
+                label="bookName"
+                placeholder="bookName"
+                readonly
               />
             </VCol>
 
-            <!-- 👉 Billing Email -->
+            <!-- 👉 userName -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="userData.price"
-                label="Price"
-                placeholder="Price"
+                v-model="bookData.userName"
+                label="userName"
+                placeholder="userName"
               />
             </VCol>
 
@@ -117,8 +118,20 @@ const dialogVisibleUpdate = (val: boolean) => {
               md="6"
             >
               <VTextField
-                v-model="userData.stockAmount"
-                label="StockAmount"
+                v-model="bookData.tckn"
+                label="TCKN"
+                placeholder="0"
+              />
+            </VCol>
+
+            <!-- 👉 Status -->
+            <VCol
+              cols="12"
+              md="6"
+            >
+              <VTextField
+                v-model="bookData.phoneNumber"
+                label="PhoneNumber"
                 placeholder="0"
               />
             </VCol>
