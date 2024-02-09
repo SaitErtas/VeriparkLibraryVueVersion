@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { CheckOutType } from '@/types/check-in-out/checkInOutTypes'
+import type { CheckOutType } from '@/types/check-in-out/checkInOutTypes';
+import userAxios from '@/user-functions/userAxios';
 
 interface Props {
-  addCheckOutTypeItem?: CheckOutType
+  checkOutBookTypeItem?: CheckOutType
   isDialogVisible: boolean
 }
 
@@ -11,8 +12,8 @@ interface Emit {
   (e: 'update:isDialogVisible', val: boolean): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  addCheckOutTypeItem: () => ({
+const props = withDefaults(defineProps<Props>(), {isDialogVisible:false,
+  checkOutBookTypeItem: () => ({
     bookId: 0,
     bookName: '',
     phoneNumber: '',
@@ -23,19 +24,28 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emit>()
 
-const bookData = ref<CheckOutType>(structuredClone(toRaw(props.addCheckOutTypeItem)))
+const bookData = ref<CheckOutType>(structuredClone(toRaw(props.checkOutBookTypeItem)))
 
 watch(props, () => {
-  bookData.value = structuredClone(toRaw(props.addCheckOutTypeItem))
+  bookData.value = structuredClone(toRaw(props.checkOutBookTypeItem))
 })
 
-const onFormSubmit = () => {
+const onFormSubmit = async () => {
+  const resultAxios = await userAxios.post({
+    method: 'Books/book-check-out/',
+
+    data: props.checkOutBookTypeItem,
+
+  })
+
+  const responseData = await resultAxios?.axiosResponse?.data.result
+
   emit('update:isDialogVisible', false)
   emit('submit', bookData.value)
 }
 
 const onFormReset = () => {
-  bookData.value = structuredClone(toRaw(props.addCheckOutTypeItem))
+  bookData.value = structuredClone(toRaw(props.checkOutBookTypeItem))
   emit('update:isDialogVisible', false)
 }
 

@@ -3,6 +3,7 @@ import { UserAxiosHeader } from '@/configs/userAxiosHeader'
 import axios from '@axios'
 // eslint-disable-next-line import/order
 import type { AxiosResponse } from 'axios'
+import { UserAxiosReturnType } from './userAxiosReturnType'
 
 async function put({
   method,
@@ -41,34 +42,39 @@ async function post({
 }: {
   method: string
   data: any
-}): Promise<AxiosResponse<any, any> | null> {
+}): Promise<UserAxiosReturnType> {
   try {
-    return await axios.post(auth.apiRootUrl + method, data, {
+    const result= await axios.post(auth.apiRootUrl + method, data, {
       headers: UserAxiosHeader(),
     })
+
+    return {axiosResponse:result,status:result.status,isSuccess:true,headers:result.headers,message:result.statusText,statusText:result.statusText,errorObject:null}
   }
   catch (err) {
     const error = err as any
     if (error.response) {
       console.log('error1: ', error)
+
       if (error.response.data?.Errors) {
-        await console.log(`${error.response.data.Errors} ${error.message}`)
+        console.log(`${error.response.data.Errors} ${error.message}`)
+        return {axiosResponse:null,status:99999,isSuccess:false,headers:null,message:`${error.response.data.Errors} ${error.message}`,statusText:null,errorObject:null}
       }
       else {
-        await console.log(`${error.response.data} ${error.message}`, {
-          duration: 5000,
-        })
+        console.log(`${error.response.data} ${error.message}`)
+        return {axiosResponse:null,status:99998,isSuccess:false,headers:null,message:`${error.response.data} ${error.message}`,statusText:null,errorObject:null}
       }
     }
     else if (error.request) {
       console.log('error2: ', error)
+      return {axiosResponse:null,status:99997,isSuccess:false,headers:null,message:null,statusText:null,errorObject:error}
     }
     else {
       console.log('error3: ', error)
+      return {axiosResponse:null,status:99996,isSuccess:false,headers:null,message:null,statusText:null,errorObject:error}
     }
   }
-
-  return null
+  
+  
 }
 
 async function get({

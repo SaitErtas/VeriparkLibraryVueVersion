@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import type { BookListItemType } from '@/types/book/bookTypes'
+import AddBook from '@/user-components/book/add-book/AddBook.vue'
 import CheckOutBook from '@/user-components/book/check-out-book/CheckOutBook.vue'
 import userAxios from '@/user-functions/userAxios'
 import type { Options } from '@core/types'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 // 👉 Store
 const totalUsers = ref(0)
@@ -43,7 +44,7 @@ onMounted(() => {
   getBookList()
 })
 
-// watchEffect(getBookList)
+//watchEffect(getBookList)
 
 // 👉 Update Book
 const updateBook = (id: number) => {
@@ -52,19 +53,36 @@ const updateBook = (id: number) => {
 }
 
 // 👉 checkOutBook
-const checkOutBook = (item: BookListItemType) => {
-  console.log(item)
+const openCheckOutBook = async (item: BookListItemType) => {
+  console.log('item:',item)
   bookListItem.value = item
+  console.log('bookListItem:',bookListItem.value)
   openCheckOutBookDialog.value = true
 
-  // refetch getBookList
-  // getBookList()
 }
 
-const closeCheckOutBookDialog = () => {
+const closeCheckOutBookDialog = (val: boolean) => {
   console.log('test')
-  openCheckOutBookDialog.value = false
+  openCheckOutBookDialog.value = val
+    // refetch getBookList
+    getBookList()
 }
+
+//Add Book Area
+// 👉 AddBook
+const openAddBookDialog = ref(false)
+const openAddBook = async () => {
+  openAddBookDialog.value = true
+
+}
+
+const closeAddBookDialog = (val: boolean) => {
+  console.log('test')
+  openAddBookDialog.value = val
+    // refetch getBookList
+    getBookList()
+}
+
 
 // 👉 checkInBook
 const checkInBook = (id: number) => {
@@ -84,7 +102,15 @@ const addBook = (id: number) => {
     <VCard
       class="mb-6 text-center"
       title="VERİPARK LIBRARY PROJECT"
-    />
+    >
+    <VBtn
+                color="secondary"
+                variant="outlined"
+                @click="openAddBook"
+              >
+                AddBook
+              </VBtn>
+  </VCard>
     <!-- SECTION datatable -->
     <VDataTableServer
       v-model:items-per-page="options.itemsPerPage"
@@ -141,7 +167,7 @@ const addBook = (id: number) => {
                   </template>
                   <VListItemTitle>Update Book</VListItemTitle>
                 </VListItem>
-                <VListItem @click="checkOutBook(item.raw)">
+                <VListItem @click="openCheckOutBook(item.raw)">
                   <template #prepend>
                     <VIcon icon="mdi-book-arrow-up-outline" />
                   </template>
@@ -204,9 +230,13 @@ const addBook = (id: number) => {
   <CheckOutBook
     v-if="bookListItem"
     :is-dialog-visible="openCheckOutBookDialog"
-    :add-check-out-type-item="{ bookId: bookListItem?.id, bookName: bookListItem?.name, phoneNumber: '', tckn: 0, userName: '' }"
+    :check-out-book-type-item="{ bookId: bookListItem?.id, bookName: bookListItem.name, phoneNumber: '', tckn: 0, userName: '' }"
+
     @update:is-dialog-visible="closeCheckOutBookDialog"
   />
+
+  <AddBook :is-add-book-dialog-visible="openAddBookDialog" @update:is-add-book-dialog-visible="closeAddBookDialog" />
+
 </template>
 
 <route lang="yaml">

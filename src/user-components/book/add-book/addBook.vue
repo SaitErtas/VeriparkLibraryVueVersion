@@ -1,54 +1,38 @@
 <script setup lang="ts">
-import type { AddBookType } from '@/types/book/bookTypes'
+import type { AddBookType } from '@/types/book/bookTypes';
 
 interface Props {
-  addBookTypeItem?: AddBookType
-  isDialogVisible: boolean
+  isAddBookDialogVisible: boolean
 }
 
 interface Emit {
-  (e: 'submit', value: AddBookType): void
-  (e: 'update:isDialogVisible', val: boolean): void
+  (e: 'update:isAddBookDialogVisible', val: boolean): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  addBookTypeItem: () => ({
-    isbn: '',
-    name: '',
-    price: 0,
-    publishDate: new Date(),
-    stockAmount: 0,
-  }),
-})
+const addBookTypeItem = ref<AddBookType>({isbn:'',name:'',price:0,publishDate:new Date(),stockAmount:0})
+
+
+const props = withDefaults(defineProps<Props>(), {isAddBookDialogVisible:false})
 
 const emit = defineEmits<Emit>()
 
-const userData = ref<AddBookType>(structuredClone(toRaw(props.addBookTypeItem)))
-
-watch(props, () => {
-  userData.value = structuredClone(toRaw(props.addBookTypeItem))
-})
-
 const onFormSubmit = () => {
-  emit('update:isDialogVisible', false)
-  emit('submit', userData.value)
+  emit('update:isAddBookDialogVisible', false)
 }
 
 const onFormReset = () => {
-  userData.value = structuredClone(toRaw(props.addBookTypeItem))
-
-  emit('update:isDialogVisible', false)
+  emit('update:isAddBookDialogVisible', false)
 }
 
 const dialogVisibleUpdate = (val: boolean) => {
-  emit('update:isDialogVisible', val)
+  emit('update:isAddBookDialogVisible', val)
 }
 </script>
 
 <template>
   <VDialog
     :width="$vuetify.display.smAndDown ? 'auto' : 800"
-    :model-value="props.isDialogVisible"
+    :model-value="props.isAddBookDialogVisible"
     @update:model-value="dialogVisibleUpdate"
   >
     <VCard class="pa-sm-9 pa-5">
@@ -61,10 +45,10 @@ const dialogVisibleUpdate = (val: boolean) => {
 
       <VCardItem class="text-center">
         <VCardTitle class="text-h5 mb-2">
-          Edit User Information
+          Add Book
         </VCardTitle>
         <VCardSubtitle>
-          Updating user details will receive a privacy audit.
+          New Book
         </VCardSubtitle>
       </VCardItem>
 
@@ -75,49 +59,61 @@ const dialogVisibleUpdate = (val: boolean) => {
           @submit.prevent="onFormSubmit"
         >
           <VRow>
-            <!-- 👉 Full Name -->
+            <!-- 👉 Name -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="userData.name"
+                v-model="addBookTypeItem.name"
                 label="Name"
                 placeholder="Name"
               />
             </VCol>
 
-            <!-- 👉 Username -->
+            <!-- 👉 ISBN -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="userData.isbn"
+                v-model="addBookTypeItem.isbn"
                 label="ISBN"
                 placeholder="ISBN"
               />
             </VCol>
 
-            <!-- 👉 Billing Email -->
+            <!-- 👉 Price -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="userData.price"
+                v-model="addBookTypeItem.price"
                 label="Price"
                 placeholder="Price"
               />
             </VCol>
 
-            <!-- 👉 Status -->
+            <!-- 👉 StockAmount -->
             <VCol
               cols="12"
               md="6"
             >
               <VTextField
-                v-model="userData.stockAmount"
+                v-model="addBookTypeItem.stockAmount"
+                label="StockAmount"
+                placeholder="0"
+              />
+            </VCol>
+
+            <!-- 👉 Publish Date -->
+            <VCol
+              cols="12"
+              md="6"
+            >
+              <VDateField
+                v-model="addBookTypeItem.publishDate"
                 label="StockAmount"
                 placeholder="0"
               />
