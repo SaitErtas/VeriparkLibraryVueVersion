@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { provide, ref } from 'vue'
+import { provide, ref } from 'vue';
 
 const show = ref(false)
 const message = ref('')
 const color = ref('')
 
 provide('snackbar', {
-  toast(options: { message: string; color: string }) {
+  show(options: { message: string; color: string }) {
     message.value = options.message
     color.value = options.color
     show.value = true
@@ -19,16 +19,10 @@ provide('snackbar', {
 
 <template>
   <slot />
-  <VSnackbar
-    v-model="show"
-    :color="color"
-  >
+  <VSnackbar v-model="show" :color="color">
     {{ message }}
     <template #actions>
-      <VBtn
-        variant="text"
-        @click="show = false"
-      >
+      <VBtn variant="text" @click="show = false">
         Close
       </VBtn>
     </template>

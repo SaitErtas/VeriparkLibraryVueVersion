@@ -54,9 +54,9 @@ const updateBook = (id: number) => {
 
 // 👉 checkOutBook
 const openCheckOutBook = async (item: BookListItemType) => {
-  console.log('item:',item)
+  console.log('item:', item)
   bookListItem.value = item
-  console.log('bookListItem:',bookListItem.value)
+  console.log('bookListItem:', bookListItem.value)
   openCheckOutBookDialog.value = true
 
 }
@@ -64,8 +64,8 @@ const openCheckOutBook = async (item: BookListItemType) => {
 const closeCheckOutBookDialog = (val: boolean) => {
   console.log('test')
   openCheckOutBookDialog.value = val
-    // refetch getBookList
-    getBookList()
+  // refetch getBookList
+  getBookList()
 }
 
 //Add Book Area
@@ -79,8 +79,8 @@ const openAddBook = async () => {
 const closeAddBookDialog = (val: boolean) => {
   console.log('test')
   openAddBookDialog.value = val
-    // refetch getBookList
-    getBookList()
+  // refetch getBookList
+  getBookList()
 }
 
 
@@ -99,28 +99,16 @@ const addBook = (id: number) => {
 
 <template class="justify-center">
   <div>
-    <VCard
-      class="mb-6 text-center"
-      title="VERİPARK LIBRARY PROJECT"
-    >
-    <VBtn
-                color="secondary"
-                variant="outlined"
-                @click="openAddBook"
-              >
-                AddBook
-              </VBtn>
-  </VCard>
+    <VCard class="mb-6 text-center" title="VERİPARK LIBRARY PROJECT">
+
+    </VCard>
+    <VBtn color="secondary" variant="outlined" @click="openAddBook">
+      AddBook
+    </VBtn>
     <!-- SECTION datatable -->
-    <VDataTableServer
-      v-model:items-per-page="options.itemsPerPage"
-      v-model:page="options.page"
-      :items="bookList"
-      :items-length="bookList.length"
-      :headers="headers"
-      class="text-no-wrap rounded-0"
-      @update:options="options = $event"
-    >
+    <VDataTableServer v-model:items-per-page="options.itemsPerPage" v-model:page="options.page" :items="bookList"
+      :items-length="bookList.length" :headers="headers" class="text-no-wrap rounded-0"
+      @update:options="options = $event">
       <!-- Name -->
       <template #item.name="{ item }">
         <div class="d-flex">
@@ -147,16 +135,8 @@ const addBook = (id: number) => {
 
       <!-- Actions -->
       <template #item.actions="{ item }">
-        <VBtn
-          icon
-          variant="text"
-          size="small"
-          color="medium-emphasis"
-        >
-          <VIcon
-            size="24"
-            icon="mdi-dots-vertical"
-          />
+        <VBtn icon variant="text" size="small" color="medium-emphasis">
+          <VIcon size="24" icon="mdi-dots-vertical" />
 
           <VMenu activator="parent">
             <VList>
@@ -191,35 +171,17 @@ const addBook = (id: number) => {
         <div class="d-flex gap-x-6 flex-wrap justify-end pa-2">
           <div class="d-flex align-center gap-x-2 text-sm">
             Rows Per Page:
-            <VSelect
-              v-model="options.itemsPerPage"
-              variant="plain"
-              class="per-page-select text-high-emphasis"
-              density="compact"
-              :items="[10, 20, 25, 50, 100]"
-            />
+            <VSelect v-model="options.itemsPerPage" variant="plain" class="per-page-select text-high-emphasis"
+              density="compact" :items="[10, 20, 25, 50, 100]" />
           </div>
 
           <div class="d-flex gap-x-2 align-center">
-            <VBtn
-              class="flip-in-rtl"
-              icon="mdi-chevron-left"
-              variant="text"
-              density="comfortable"
-              color="default"
-              :disabled="options.page <= 1"
-              @click="options.page <= 1 ? options.page = 1 : options.page--"
-            />
+            <VBtn class="flip-in-rtl" icon="mdi-chevron-left" variant="text" density="comfortable" color="default"
+              :disabled="options.page <= 1" @click="options.page <= 1 ? options.page = 1 : options.page--" />
 
-            <VBtn
-              class="flip-in-rtl"
-              icon="mdi-chevron-right"
-              density="comfortable"
-              variant="text"
-              color="default"
+            <VBtn class="flip-in-rtl" icon="mdi-chevron-right" density="comfortable" variant="text" color="default"
               :disabled="options.page >= Math.ceil(totalUsers / options.itemsPerPage)"
-              @click="options.page >= Math.ceil(totalUsers / options.itemsPerPage) ? options.page = Math.ceil(totalUsers / options.itemsPerPage) : options.page++ "
-            />
+              @click="options.page >= Math.ceil(totalUsers / options.itemsPerPage) ? options.page = Math.ceil(totalUsers / options.itemsPerPage) : options.page++" />
           </div>
         </div>
       </template>
@@ -227,16 +189,11 @@ const addBook = (id: number) => {
     <!-- SECTION -->
   </div>
 
-  <CheckOutBook
-    v-if="bookListItem"
-    :is-dialog-visible="openCheckOutBookDialog"
+  <CheckOutBook v-if="bookListItem" :is-dialog-visible="openCheckOutBookDialog"
     :check-out-book-type-item="{ bookId: bookListItem?.id, bookName: bookListItem.name, phoneNumber: '', tckn: 0, userName: '' }"
-
-    @update:is-dialog-visible="closeCheckOutBookDialog"
-  />
+    @update:is-dialog-visible="closeCheckOutBookDialog" />
 
   <AddBook :is-add-book-dialog-visible="openAddBookDialog" @update:is-add-book-dialog-visible="closeAddBookDialog" />
-
 </template>
 
 <route lang="yaml">

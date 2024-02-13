@@ -44,11 +44,11 @@ async function post({
   data: any
 }): Promise<UserAxiosReturnType> {
   try {
-    const result= await axios.post(auth.apiRootUrl + method, data, {
+    const result = await axios.post(auth.apiRootUrl + method, data, {
       headers: UserAxiosHeader(),
     })
 
-    return {axiosResponse:result,status:result.status,isSuccess:true,headers:result.headers,message:result.statusText,statusText:result.statusText,errorObject:null}
+    return { axiosResponse: result, status: result.status, isSuccess: true, headers: result.headers, message: result.statusText, statusText: result.statusText, errorObject: null }
   }
   catch (err) {
     const error = err as any
@@ -57,24 +57,24 @@ async function post({
 
       if (error.response.data?.Errors) {
         console.log(`${error.response.data.Errors} ${error.message}`)
-        return {axiosResponse:null,status:99999,isSuccess:false,headers:null,message:`${error.response.data.Errors} ${error.message}`,statusText:null,errorObject:null}
+        return { axiosResponse: null, status: 99999, isSuccess: false, headers: null, message: `${error.response.data.Errors} ${error.message}`, statusText: null, errorObject: null }
       }
       else {
         console.log(`${error.response.data} ${error.message}`)
-        return {axiosResponse:null,status:99998,isSuccess:false,headers:null,message:`${error.response.data} ${error.message}`,statusText:null,errorObject:null}
+        return { axiosResponse: null, status: 99998, isSuccess: false, headers: null, message: `${error.response.data} ${error.message}`, statusText: null, errorObject: null }
       }
     }
     else if (error.request) {
       console.log('error2: ', error)
-      return {axiosResponse:null,status:99997,isSuccess:false,headers:null,message:null,statusText:null,errorObject:error}
+      return { axiosResponse: null, status: 99997, isSuccess: false, headers: null, message: null, statusText: null, errorObject: error }
     }
     else {
       console.log('error3: ', error)
-      return {axiosResponse:null,status:99996,isSuccess:false,headers:null,message:null,statusText:null,errorObject:error}
+      return { axiosResponse: null, status: 99996, isSuccess: false, headers: null, message: null, statusText: null, errorObject: error }
     }
   }
-  
-  
+
+
 }
 
 async function get({

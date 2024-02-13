@@ -12,7 +12,8 @@ interface Emit {
   (e: 'update:isDialogVisible', val: boolean): void
 }
 
-const props = withDefaults(defineProps<Props>(), {isDialogVisible:false,
+const props = withDefaults(defineProps<Props>(), {
+  isDialogVisible: false,
   checkOutBookTypeItem: () => ({
     bookId: 0,
     bookName: '',
@@ -25,12 +26,16 @@ const props = withDefaults(defineProps<Props>(), {isDialogVisible:false,
 const emit = defineEmits<Emit>()
 
 const bookData = ref<CheckOutType>(structuredClone(toRaw(props.checkOutBookTypeItem)))
+const isLoading = ref<boolean>(false)
 
 watch(props, () => {
   bookData.value = structuredClone(toRaw(props.checkOutBookTypeItem))
 })
 
+
+const { show } = inject('snackbar') as any
 const onFormSubmit = async () => {
+  isLoading.value = true
   const resultAxios = await userAxios.post({
     method: 'Books/book-check-out/',
 
@@ -38,10 +43,17 @@ const onFormSubmit = async () => {
 
   })
 
-  const responseData = await resultAxios?.axiosResponse?.data.result
 
-  emit('update:isDialogVisible', false)
-  emit('submit', bookData.value)
+  const responseData = await resultAxios;
+  if (responseData.isSuccess) {
+    emit('update:isDialogVisible', false)
+    emit('submit', bookData.value)
+  }
+  else {
+    show({ message: responseData.message, color: 'error' })
+  }
+  isLoading.value = false
+
 }
 
 const onFormReset = () => {
@@ -55,18 +67,11 @@ const dialogVisibleUpdate = (val: boolean) => {
 </script>
 
 <template>
-  <VDialog
-    :width="$vuetify.display.smAndDown ? 'auto' : 800"
-    :model-value="props.isDialogVisible"
-    @update:model-value="dialogVisibleUpdate"
-  >
+  <VDialog :width="$vuetify.display.smAndDown ? 'auto' : 800" :model-value="props.isDialogVisible"
+    @update:model-value="dialogVisibleUpdate">
     <VCard class="pa-sm-9 pa-5">
       <!-- 👉 dialog close btn -->
-      <DialogCloseBtn
-        variant="text"
-        size="small"
-        @click="onFormReset"
-      />
+      <DialogCloseBtn variant="text" size="small" @click="onFormReset" />
 
       <VCardItem class="text-center">
         <VCardTitle class="text-h5 mb-2">
@@ -79,87 +84,42 @@ const dialogVisibleUpdate = (val: boolean) => {
 
       <VCardText>
         <!-- 👉 Form -->
-        <VForm
-          class="mt-6"
-          @submit.prevent="onFormSubmit"
-        >
+        <VForm class="mt-6" @submit.prevent="onFormSubmit">
           <VRow>
             <!-- 👉 Full Name -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <VTextField
-                v-model="bookData.bookId"
-                label="bookId"
-                placeholder="bookId"
-                readonly
-              />
+            <VCol cols="12" md="6">
+              <VTextField v-model="bookData.bookId" label="bookId" placeholder="bookId" readonly />
             </VCol>
 
             <!-- 👉 userName -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <VTextField
-                v-model="bookData.bookName"
-                label="bookName"
-                placeholder="bookName"
-                readonly
-              />
+            <VCol cols="12" md="6">
+              <VTextField v-model="bookData.bookName" label="bookName" placeholder="bookName" readonly />
             </VCol>
 
             <!-- 👉 userName -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <VTextField
-                v-model="bookData.userName"
-                label="userName"
-                placeholder="userName"
-              />
+            <VCol cols="12" md="6">
+              <VTextField v-model="bookData.userName" label="userName" placeholder="userName" />
             </VCol>
 
             <!-- 👉 Status -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <VTextField
-                v-model="bookData.tckn"
-                label="TCKN"
-                placeholder="0"
-              />
+            <VCol cols="12" md="6">
+              <VTextField v-model="bookData.tckn" label="TCKN" placeholder="0" />
             </VCol>
 
             <!-- 👉 Status -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <VTextField
-                v-model="bookData.phoneNumber"
-                label="PhoneNumber"
-                placeholder="0"
-              />
+            <VCol cols="12" md="6">
+              <VTextField v-model="bookData.phoneNumber" label="PhoneNumber" placeholder="0" />
             </VCol>
 
             <!-- 👉 Submit and Cancel -->
-            <VCol
-              cols="12"
-              class="d-flex flex-wrap justify-center gap-4"
-            >
-              <VBtn type="submit">
-                Submit
-              </VBtn>
-
-              <VBtn
-                color="secondary"
-                variant="outlined"
-                @click="onFormReset"
-              >
+            <VCol cols="12" class="d-flex flex-wrap justify-center gap-4">
+              <div>
+                <VProgressCircular indeterminate v-if="isLoading" color="primary" />
+                <VBtn type="submit" v-else="!isLoading">
+                  Submit
+                </VBtn>
+              </div>
+              <VBtn color="secondary" variant="outlined" @click="onFormReset">
                 Cancel
               </VBtn>
             </VCol>
