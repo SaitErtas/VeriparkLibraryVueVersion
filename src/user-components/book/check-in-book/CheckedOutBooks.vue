@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { CartItem, CheckoutData } from './types'
+import { BookCheckInOutType } from '@/types/check-in-out/checkInOutTypes';
+import type { CartItem, CheckoutData } from './types';
 
 interface Props {
-  currentStep?: number
-  checkoutData: CheckoutData
+  currentStep?: number,
+  bookCheckInOutTypeItem: BookCheckInOutType
 }
 
 interface Emit {
@@ -45,16 +46,9 @@ watch(() => props.currentStep, updateCartData)
 
 <template>
   <VRow v-if="checkoutCartDataLocal">
-    <VCol
-      cols="12"
-      md="8"
-    >
+    <VCol cols="12" md="8">
       <!-- 👉 Offers alert -->
-      <VAlert
-        color="success"
-        variant="tonal"
-        icon="mdi-check-circle-outline"
-      >
+      <VAlert color="success" variant="tonal" icon="mdi-check-circle-outline">
         <VAlertTitle class="text-body-1 text-success mb-1">
           Available Offers
         </VAlertTitle>
@@ -73,36 +67,18 @@ watch(() => props.currentStep, updateCartData)
 
       <!-- 👉 Cart items -->
       <div class="border rounded">
-        <template
-          v-for="(item, index) in checkoutCartDataLocal.cartItems"
-          :key="item.name"
-        >
-          <div
-            class="d-flex align-center gap-3 pa-6 position-relative flex-column flex-sm-row"
-            :class="index ? 'border-t' : ''"
-          >
-            <IconBtn
-              size="x-small"
-              class="checkout-item-remove-btn"
-              @click="removeItem(item)"
-            >
-              <VIcon
-                size="18"
-                icon="mdi-close"
-              />
+        <template v-for="(item, index) in checkoutCartDataLocal.cartItems" :key="item.name">
+          <div class="d-flex align-center gap-3 pa-6 position-relative flex-column flex-sm-row"
+            :class="index ? 'border-t' : ''">
+            <IconBtn size="x-small" class="checkout-item-remove-btn" @click="removeItem(item)">
+              <VIcon size="18" icon="mdi-close" />
             </IconBtn>
 
             <div>
-              <VImg
-                width="140"
-                :src="item.image"
-              />
+              <VImg width="140" :src="item.image" />
             </div>
 
-            <div
-              class="d-flex w-100"
-              :class="$vuetify.display.width <= 700 ? 'flex-column' : 'flex-row'"
-            >
+            <div class="d-flex w-100" :class="$vuetify.display.width <= 700 ? 'flex-column' : 'flex-row'">
               <div>
                 <h6 class="text-base font-weight-regular mb-4">
                   {{ item.name }}
@@ -110,10 +86,7 @@ watch(() => props.currentStep, updateCartData)
                 <div class="d-flex align-center text-no-wrap gap-2 text-base">
                   <span class="text-disabled">Sold by:</span>
                   <span class="text-primary">{{ item.seller }}</span>
-                  <VChip
-                    :color="item.inStock ? 'success' : 'error'"
-                    density="compact"
-                  >
+                  <VChip :color="item.inStock ? 'success' : 'error'" density="compact">
                     <span class="text-xs">
                       {{ item.inStock ? 'In Stock' : 'Out of Stock' }}
                     </span>
@@ -121,27 +94,16 @@ watch(() => props.currentStep, updateCartData)
                 </div>
 
                 <div class="mt-1">
-                  <VRating
-                    density="compact"
-                    :model-value="item.rating"
-                    readonly
-                  />
+                  <VRating density="compact" :model-value="item.rating" readonly />
                 </div>
 
-                <VTextField
-                  v-model="item.quantity"
-                  type="number"
-                  style="width: 7.5rem;"
-                  density="compact"
-                />
+                <VTextField v-model="item.quantity" type="number" style="width: 7.5rem;" density="compact" />
               </div>
 
               <VSpacer />
 
-              <div
-                class="d-flex flex-column justify-space-between mt-8"
-                :class="$vuetify.display.width <= 700 ? 'text-start' : 'text-end'"
-              >
+              <div class="d-flex flex-column justify-space-between mt-8"
+                :class="$vuetify.display.width <= 700 ? 'text-start' : 'text-end'">
                 <p class="text-base">
                   <span class="text-primary">${{ item.price }}</span>
                   <span>/</span>
@@ -149,10 +111,7 @@ watch(() => props.currentStep, updateCartData)
                 </p>
 
                 <div>
-                  <VBtn
-                    variant="outlined"
-                    density="comfortable"
-                  >
+                  <VBtn variant="outlined" density="comfortable">
                     move to wishlist
                   </VBtn>
                 </div>
@@ -165,21 +124,12 @@ watch(() => props.currentStep, updateCartData)
       <!-- 👉 Add more from wishlist -->
       <div class="d-flex align-center justify-space-between border rounded py-2 px-5 text-base mt-4">
         <a href="#">Add more products from wishlist</a>
-        <VIcon
-          icon="mdi-chevron-right"
-          class="flip-in-rtl"
-        />
+        <VIcon icon="mdi-chevron-right" class="flip-in-rtl" />
       </div>
     </VCol>
 
-    <VCol
-      cols="12"
-      md="4"
-    >
-      <VCard
-        flat
-        variant="outlined"
-      >
+    <VCol cols="12" md="4">
+      <VCard flat variant="outlined">
         <!-- 👉 payment offer -->
         <VCardText class="pa-6">
           <h6 class="text-base font-weight-medium mb-4">
@@ -187,16 +137,9 @@ watch(() => props.currentStep, updateCartData)
           </h6>
 
           <div class="d-flex align-center gap-4">
-            <VTextField
-              v-model="checkoutCartDataLocal.promoCode"
-              density="compact"
-              placeholder="Enter Promo Code"
-            />
+            <VTextField v-model="checkoutCartDataLocal.promoCode" density="compact" placeholder="Enter Promo Code" />
 
-            <VBtn
-              variant="outlined"
-              @click="updateCartData"
-            >
+            <VBtn variant="outlined" @click="updateCartData">
               Apply
             </VBtn>
           </div>
@@ -210,10 +153,7 @@ watch(() => props.currentStep, updateCartData)
               Gift wrap and personalized message on card, Only for $2.
             </p>
 
-            <a
-              href="#"
-              class="font-weight-medium"
-            >Add a gift wrap</a>
+            <a href="#" class="font-weight-medium">Add a gift wrap</a>
           </div>
         </VCardText>
 
@@ -233,10 +173,7 @@ watch(() => props.currentStep, updateCartData)
 
             <div class="d-flex justify-space-between mb-2">
               <span>Coupon Discount</span>
-              <a
-                href="#"
-                class="font-weight-medium"
-              >Apply Coupon</a>
+              <a href="#" class="font-weight-medium">Apply Coupon</a>
             </div>
 
             <div class="d-flex justify-space-between mb-2">
@@ -249,10 +186,7 @@ watch(() => props.currentStep, updateCartData)
 
               <div>
                 <span class="text-decoration-line-through text-disabled me-2">$5.00</span>
-                <VChip
-                  density="comfortable"
-                  color="success"
-                >
+                <VChip density="comfortable" color="success">
                   Free
                 </VChip>
               </div>
@@ -272,11 +206,7 @@ watch(() => props.currentStep, updateCartData)
         </VCardText>
       </VCard>
 
-      <VBtn
-        block
-        class="mt-4"
-        @click="nextStep"
-      >
+      <VBtn block class="mt-4" @click="nextStep">
         Place Order
       </VBtn>
     </VCol>

@@ -38,6 +38,7 @@ const getBookList = async () => {
   const responseData = await resultAxios?.data.result
 
   bookList.value = responseData.books
+  totalUsers.value = bookList.value.length
 }
 
 onMounted(() => {
@@ -101,92 +102,94 @@ const addBook = (id: number) => {
   <div>
     <VCard class="mb-6 text-center" title="VERİPARK LIBRARY PROJECT">
 
-    </VCard>
-    <VBtn color="secondary" variant="outlined" @click="openAddBook">
-      AddBook
-    </VBtn>
-    <!-- SECTION datatable -->
-    <VDataTableServer v-model:items-per-page="options.itemsPerPage" v-model:page="options.page" :items="bookList"
-      :items-length="bookList.length" :headers="headers" class="text-no-wrap rounded-0"
-      @update:options="options = $event">
-      <!-- Name -->
-      <template #item.name="{ item }">
-        <div class="d-flex">
-          <div class="d-flex flex-column">
-            <span class="text-xs text-medium-emphasis">{{ item.raw.name }}</span>
-          </div>
-        </div>
-      </template>
-
-      <!-- ISBN -->
-      <template #item.isbn="{ item }">
-        <span class="text-sm">{{ item.raw.isbn }}</span>
-      </template>
-
-      <!-- stockAmount -->
-      <template #item.stockAmount="{ item }">
-        <span class="text-sm">{{ item.raw.stockAmount }}</span>
-      </template>
-
-      <!-- checkOutAmount -->
-      <template #item.checkOutAmount="{ item }">
-        <span class="text-sm">{{ item.raw.checkOutAmount }}</span>
-      </template>
-
-      <!-- Actions -->
-      <template #item.actions="{ item }">
-        <VBtn icon variant="text" size="small" color="medium-emphasis">
-          <VIcon size="24" icon="mdi-dots-vertical" />
-
-          <VMenu activator="parent">
-            <VList>
-              <VListItem>
-                <VListItem @click="updateBook(item.raw.id)">
-                  <template #prepend>
-                    <VIcon icon="mdi-edit-outline" />
-                  </template>
-                  <VListItemTitle>Update Book</VListItemTitle>
-                </VListItem>
-                <VListItem @click="openCheckOutBook(item.raw)">
-                  <template #prepend>
-                    <VIcon icon="mdi-book-arrow-up-outline" />
-                  </template>
-                  <VListItemTitle>CheckOut Book</VListItemTitle>
-                </VListItem>
-                <VListItem @click="checkInBook(item.raw.id)">
-                  <template #prepend>
-                    <VIcon icon="mdi-book-arrow-down-outline" />
-                  </template>
-                  <VListItemTitle>CheckIn Book</VListItemTitle>
-                </VListItem>
-              </vlistitem>
-            </VList>
-          </VMenu>
+      <VCardText class="d-flex justify-space-between flex-wrap gap-4">
+        <VBtn color="secondary" variant="outlined" @click="openAddBook">
+          AddBook
         </VBtn>
-      </template>
-
-      <!-- Pagination -->
-      <template #bottom>
-        <VDivider />
-        <div class="d-flex gap-x-6 flex-wrap justify-end pa-2">
-          <div class="d-flex align-center gap-x-2 text-sm">
-            Rows Per Page:
-            <VSelect v-model="options.itemsPerPage" variant="plain" class="per-page-select text-high-emphasis"
-              density="compact" :items="[10, 20, 25, 50, 100]" />
+      </VCardText>
+      <!-- SECTION datatable -->
+      <VDataTableServer v-model:items-per-page="options.itemsPerPage" v-model:page="options.page" :items="bookList"
+        :items-length="bookList.length" :headers="headers" class="text-no-wrap rounded-0"
+        @update:options="options = $event">
+        <!-- Name -->
+        <template #item.name="{ item }">
+          <div class="d-flex">
+            <div class="d-flex flex-column">
+              <span class="text-xs text-medium-emphasis">{{ item.raw.name }}</span>
+            </div>
           </div>
+        </template>
 
-          <div class="d-flex gap-x-2 align-center">
-            <VBtn class="flip-in-rtl" icon="mdi-chevron-left" variant="text" density="comfortable" color="default"
-              :disabled="options.page <= 1" @click="options.page <= 1 ? options.page = 1 : options.page--" />
+        <!-- ISBN -->
+        <template #item.isbn="{ item }">
+          <span class="text-sm">{{ item.raw.isbn }}</span>
+        </template>
 
-            <VBtn class="flip-in-rtl" icon="mdi-chevron-right" density="comfortable" variant="text" color="default"
-              :disabled="options.page >= Math.ceil(totalUsers / options.itemsPerPage)"
-              @click="options.page >= Math.ceil(totalUsers / options.itemsPerPage) ? options.page = Math.ceil(totalUsers / options.itemsPerPage) : options.page++" />
+        <!-- stockAmount -->
+        <template #item.stockAmount="{ item }">
+          <span class="text-sm">{{ item.raw.stockAmount }}</span>
+        </template>
+
+        <!-- checkOutAmount -->
+        <template #item.checkOutAmount="{ item }">
+          <span class="text-sm">{{ item.raw.checkOutAmount }}</span>
+        </template>
+
+        <!-- Actions -->
+        <template #item.actions="{ item }">
+          <VBtn icon variant="text" size="small" color="medium-emphasis">
+            <VIcon size="24" icon="mdi-dots-vertical" />
+
+            <VMenu activator="parent">
+              <VList>
+                <VListItem>
+                  <VListItem @click="updateBook(item.raw.id)">
+                    <template #prepend>
+                      <VIcon icon="mdi-edit-outline" />
+                    </template>
+                    <VListItemTitle>Update Book</VListItemTitle>
+                  </VListItem>
+                  <VListItem @click="openCheckOutBook(item.raw)">
+                    <template #prepend>
+                      <VIcon icon="mdi-book-arrow-up-outline" />
+                    </template>
+                    <VListItemTitle>CheckOut Book</VListItemTitle>
+                  </VListItem>
+                  <VListItem @click="checkInBook(item.raw.id)">
+                    <template #prepend>
+                      <VIcon icon="mdi-book-arrow-down-outline" />
+                    </template>
+                    <VListItemTitle>CheckIn Book</VListItemTitle>
+                  </VListItem>
+                </vlistitem>
+              </VList>
+            </VMenu>
+          </VBtn>
+        </template>
+
+        <!-- Pagination -->
+        <template #bottom>
+          <VDivider />
+          <div class="d-flex gap-x-6 flex-wrap justify-end pa-2">
+            <div class="d-flex align-center gap-x-2 text-sm">
+              Rows Per Page:
+              <VSelect v-model="options.itemsPerPage" variant="plain" class="per-page-select text-high-emphasis"
+                density="compact" :items="[10, 20, 25, 50, 100]" />
+            </div>
+
+            <div class="d-flex gap-x-2 align-center">
+              <VBtn class="flip-in-rtl" icon="mdi-chevron-left" variant="text" density="comfortable" color="default"
+                :disabled="options.page <= 1" @click="options.page <= 1 ? options.page = 1 : options.page--" />
+
+              <VBtn class="flip-in-rtl" icon="mdi-chevron-right" density="comfortable" variant="text" color="default"
+                :disabled="options.page >= Math.ceil(totalUsers / options.itemsPerPage)"
+                @click="options.page >= Math.ceil(totalUsers / options.itemsPerPage) ? options.page = Math.ceil(totalUsers / options.itemsPerPage) : options.page++" />
+            </div>
           </div>
-        </div>
-      </template>
-    </VDataTableServer>
-    <!-- SECTION -->
+        </template>
+      </VDataTableServer>
+      <!-- SECTION -->
+    </VCard>
   </div>
 
   <CheckOutBook v-if="bookListItem" :is-dialog-visible="openCheckOutBookDialog"
