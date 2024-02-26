@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import type { BookListItemType } from '@/types/book/bookTypes'
 import AddBook from '@/user-components/book/add-book/AddBook.vue'
+import CheckInBookDialog from '@/user-components/book/check-in-book/CheckInBookDialog.vue'
 import CheckOutBook from '@/user-components/book/check-out-book/CheckOutBook.vue'
 import userAxios from '@/user-functions/userAxios'
 import type { Options } from '@core/types'
+import { ref } from 'vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 // 👉 Store
 const totalUsers = ref(0)
 const openCheckOutBookDialog = ref(false)
+const openCheckInBookDialog = ref(false)
 const bookList = ref<BookListItemType[]>([])
 const bookListItem = ref<BookListItemType>()
 
@@ -86,10 +89,17 @@ const closeAddBookDialog = (val: boolean) => {
 
 
 // 👉 checkInBook
-const checkInBook = (id: number) => {
-  // refetch User
+const openCheckInBook = async (item: BookListItemType) => {
+  bookListItem.value = item
+  openCheckInBookDialog.value = true
+
+}
+// 👉 checkInBook
+const isVisibleCheckInBookDialogMethod = async (val: boolean) => {
+  openCheckInBookDialog.value = val
   getBookList()
 }
+
 
 // 👉 addBook
 const addBook = (id: number) => {
@@ -122,49 +132,65 @@ const addBook = (id: number) => {
 
         <!-- ISBN -->
         <template #item.isbn="{ item }">
-          <span class="text-sm">{{ item.raw.isbn }}</span>
+          <div class="d-flex">
+            <div class="d-flex flex-column">
+              <span class="text-xs text-medium-emphasis">{{ item.raw.isbn }}</span>
+            </div>
+          </div>
         </template>
 
         <!-- stockAmount -->
         <template #item.stockAmount="{ item }">
-          <span class="text-sm">{{ item.raw.stockAmount }}</span>
+          <div class="d-flex">
+            <div class="d-flex flex-column">
+              <span class="text-xs text-medium-emphasis">{{ item.raw.stockAmount }}</span>
+            </div>
+          </div>
         </template>
 
         <!-- checkOutAmount -->
         <template #item.checkOutAmount="{ item }">
-          <span class="text-sm">{{ item.raw.checkOutAmount }}</span>
+          <div class="d-flex">
+            <div class="d-flex flex-column">
+              <span class="text-xs text-medium-emphasis">{{ item.raw.checkOutAmount }}</span>
+            </div>
+          </div>
         </template>
 
         <!-- Actions -->
         <template #item.actions="{ item }">
-          <VBtn icon variant="text" size="small" color="medium-emphasis">
-            <VIcon size="24" icon="mdi-dots-vertical" />
+          <div class="d-flex">
+            <div class="d-flex flex-column">
+              <VBtn icon variant="text" size="small" color="medium-emphasis">
+                <VIcon size="24" icon="mdi-dots-vertical" />
 
-            <VMenu activator="parent">
-              <VList>
-                <VListItem>
-                  <VListItem @click="updateBook(item.raw.id)">
-                    <template #prepend>
-                      <VIcon icon="mdi-edit-outline" />
-                    </template>
-                    <VListItemTitle>Update Book</VListItemTitle>
-                  </VListItem>
-                  <VListItem @click="openCheckOutBook(item.raw)">
-                    <template #prepend>
-                      <VIcon icon="mdi-book-arrow-up-outline" />
-                    </template>
-                    <VListItemTitle>CheckOut Book</VListItemTitle>
-                  </VListItem>
-                  <VListItem @click="checkInBook(item.raw.id)">
-                    <template #prepend>
-                      <VIcon icon="mdi-book-arrow-down-outline" />
-                    </template>
-                    <VListItemTitle>CheckIn Book</VListItemTitle>
-                  </VListItem>
-                </vlistitem>
-              </VList>
-            </VMenu>
-          </VBtn>
+                <VMenu activator="parent">
+                  <VList>
+                    <VListItem>
+                      <VListItem @click="updateBook(item.raw.id)">
+                        <template #prepend>
+                          <VIcon icon="mdi-edit-outline" />
+                        </template>
+                        <VListItemTitle>Update Book</VListItemTitle>
+                      </VListItem>
+                      <VListItem @click="openCheckOutBook(item.raw)">
+                        <template #prepend>
+                          <VIcon icon="mdi-book-arrow-up-outline" />
+                        </template>
+                        <VListItemTitle>CheckOut Book</VListItemTitle>
+                      </VListItem>
+                      <VListItem @click="openCheckInBook(item.raw)">
+                        <template #prepend>
+                          <VIcon icon="mdi-book-arrow-down-outline" />
+                        </template>
+                        <VListItemTitle>CheckIn Book</VListItemTitle>
+                      </VListItem>
+                    </vlistitem>
+                  </VList>
+                </VMenu>
+              </VBtn>
+            </div>
+          </div>
         </template>
 
         <!-- Pagination -->
@@ -197,6 +223,10 @@ const addBook = (id: number) => {
     @update:is-dialog-visible="closeCheckOutBookDialog" />
 
   <AddBook :is-add-book-dialog-visible="openAddBookDialog" @update:is-add-book-dialog-visible="closeAddBookDialog" />
+
+  <CheckInBookDialog v-if="bookListItem" :bookId="bookListItem.id" :bookName="bookListItem.name"
+    :isVisibleCheckInBookDialog="openCheckInBookDialog"
+    @update:isVisibleCheckInBookDialog="isVisibleCheckInBookDialogMethod" />
 </template>
 
 <route lang="yaml">
