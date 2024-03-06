@@ -25,13 +25,13 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emit>()
 
-const bookData = ref<CheckOutType>(structuredClone(toRaw(props.checkOutBookTypeItem)))
+const bookData = ref<CheckOutType>(props.checkOutBookTypeItem)
 const isLoading = ref<boolean>(false)
-
+/*
 watch(props, () => {
   bookData.value = structuredClone(toRaw(props.checkOutBookTypeItem))
 })
-
+*/
 
 const { show } = inject('snackbar') as any
 const onFormSubmit = async () => {

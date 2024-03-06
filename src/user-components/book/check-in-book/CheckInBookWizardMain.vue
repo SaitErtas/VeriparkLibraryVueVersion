@@ -69,7 +69,7 @@ const isVisibleCheckInBookDialogMethod = (val: boolean) => {
         </VWindowItem>
         <VWindowItem>
           <CheckInBookConfirmation v-if="checkedOutBookItem" v-model:current-step="currentStep"
-            v-model:checkedOutBookItem="checkedOutBookItem"
+            :checkedOutBookItem="checkedOutBookItem"
             @update:isVisibleCheckInBookDialog="isVisibleCheckInBookDialogMethod" />
 
 
