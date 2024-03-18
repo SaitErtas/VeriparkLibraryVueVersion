@@ -7,13 +7,17 @@ import userAxios from '@/user-functions/userAxios'
 import type { Options } from '@core/types'
 import { ref } from 'vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
+import { paginationMeta } from '@/user-functions/utils'
+import { VDataTable } from 'vuetify/labs/VDataTable'
+
 
 // 👉 Store
-const totalUsers = ref(0)
 const openCheckOutBookDialog = ref(false)
 const openCheckInBookDialog = ref(false)
 const bookList = ref<BookListItemType[]>([])
 const bookListItem = ref<BookListItemType>()
+const searchQuery = ref('')
+
 
 const options = ref<Options>({
   page: 1,
@@ -41,7 +45,6 @@ const getBookList = async () => {
   const responseData = await resultAxios?.data.result
 
   bookList.value = responseData.books
-  totalUsers.value = bookList.value.length
 }
 
 onMounted(() => {
@@ -106,20 +109,56 @@ const addBook = (id: number) => {
   // refetch User
   getBookList()
 }
+
+function paginate(array, page_size, page_number) {
+  // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+  return array.slice((page_number - 1) * page_size, page_number * page_size);
+}
+
+// 👉 watch for data table options like itemsPerPage,page,searchQuery,sortBy etc...
+watchEffect(() => {
+
+  const page = options.value.page
+  const bookListCount = bookList.value.length
+
+  console.log(page)
+  console.log("watchEffect")
+  console.log(bookListCount)
+
+
+})
+
 </script>
 
 <template class="justify-center">
   <div>
     <VCard class="mb-6 text-center" title="VERİPARK LIBRARY PROJECT">
 
-      <VCardText class="d-flex justify-space-between flex-wrap gap-4">
-        <VBtn color="secondary" variant="outlined" @click="openAddBook">
-          AddBook
-        </VBtn>
+
+
+      <VCardText class="d-flex align-center flex-wrap gap-4">
+
+
+        <VSpacer />
+
+        <div class="d-flex align-center flex-wrap gap-4">
+          <!-- 👉 Search  -->
+          <div class="invoice-list-search">
+            <VTextField v-model="searchQuery" placeholder="Search" density="compact" />
+          </div>
+
+          <!-- 👉 Create invoice -->
+          <VBtn prepend-icon="mdi-plus" @click="openAddBook">
+            Add Book
+          </VBtn>
+        </div>
       </VCardText>
-      <!-- SECTION datatable -->
+
+      <!-- SECTION datatable. Bu kısım dinmaik olarak pagin yapmanı bekler. He event için backendde gidilmeli -->
+      <!-- SMevcut verileri paging falan yapan kod vDataTable olarak checkInBook da -->
+
       <VDataTableServer v-model:items-per-page="options.itemsPerPage" v-model:page="options.page" :items="bookList"
-        :items-length="bookList.length" :headers="headers" class="text-no-wrap rounded-0"
+        :items-length="bookList.length" :headers="headers" class="text-no-wrap rounded-0" :search="searchQuery"
         @update:options="options = $event">
         <!-- Name -->
         <template #item.name="{ item }">
@@ -193,7 +232,7 @@ const addBook = (id: number) => {
           </div>
         </template>
 
-        <!-- Pagination -->
+        <!-- pagination  -->
         <template #bottom>
           <VDivider />
           <div class="d-flex gap-x-6 flex-wrap justify-end pa-2">
@@ -202,14 +241,16 @@ const addBook = (id: number) => {
               <VSelect v-model="options.itemsPerPage" variant="plain" class="per-page-select text-high-emphasis"
                 density="compact" :items="[10, 20, 25, 50, 100]" />
             </div>
-
+            <div class="d-flex text-sm align-center text-high-emphasis">
+              {{ paginationMeta(options, bookList.length) }}
+            </div>
             <div class="d-flex gap-x-2 align-center">
               <VBtn class="flip-in-rtl" icon="mdi-chevron-left" variant="text" density="comfortable" color="default"
                 :disabled="options.page <= 1" @click="options.page <= 1 ? options.page = 1 : options.page--" />
 
               <VBtn class="flip-in-rtl" icon="mdi-chevron-right" density="comfortable" variant="text" color="default"
-                :disabled="options.page >= Math.ceil(totalUsers / options.itemsPerPage)"
-                @click="options.page >= Math.ceil(totalUsers / options.itemsPerPage) ? options.page = Math.ceil(totalUsers / options.itemsPerPage) : options.page++" />
+                :disabled="options.page >= Math.ceil(bookList.length / options.itemsPerPage)"
+                @click="options.page >= Math.ceil(bookList.length / options.itemsPerPage) ? options.page = Math.ceil(bookList.length / options.itemsPerPage) : options.page++" />
             </div>
           </div>
         </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { BookCheckInOutType } from '@/types/check-in-out/checkInOutTypes';
-import { VDataTableServer } from 'vuetify/labs/VDataTable';
+import { VDataTable } from 'vuetify/labs/VDataTable';
 
 interface Props {
   currentStep?: number,
@@ -41,7 +41,7 @@ const nextStep = () => {
 </script>
 
 <template>
-  <VDataTableServer v-if="props.checkedOutBookList" :headers="headers" :items="props.checkedOutBookList"
+  <VDataTable v-if="props.checkedOutBookList" :headers="headers" :items="props.checkedOutBookList"
     :items-length="props.checkedOutBookList.length" class="text-no-wrap rounded-0" @click:row="selectCheckInItem">
 
     <!-- userName -->
@@ -59,7 +59,5 @@ const nextStep = () => {
       <span class="text-sm">{{ item.raw.phoneNumber }}</span>
     </template>
 
-  </VDataTableServer>
+  </VDataTable>
 </template>
-
-

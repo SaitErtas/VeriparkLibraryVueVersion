@@ -27,11 +27,7 @@ const emit = defineEmits<Emit>()
 
 const bookData = ref<CheckOutType>(props.checkOutBookTypeItem)
 const isLoading = ref<boolean>(false)
-/*
-watch(props, () => {
-  bookData.value = structuredClone(toRaw(props.checkOutBookTypeItem))
-})
-*/
+
 
 const { show } = inject('snackbar') as any
 const onFormSubmit = async () => {
@@ -48,6 +44,7 @@ const onFormSubmit = async () => {
   if (responseData.isSuccess) {
     emit('update:isDialogVisible', false)
     emit('submit', bookData.value)
+    show({ message: "Başarılı", color: 'success' })
   }
   else {
     show({ message: responseData.message, color: 'error' })
